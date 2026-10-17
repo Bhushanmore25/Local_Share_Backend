@@ -17,7 +17,13 @@ const app = express();
 const httpServer = http.createServer(app);
 
 // ── Middleware ────────────────────────────────────────────────────────────────
-app.use(cors({ origin: CLIENT_ORIGIN || true, credentials: true }));
+app.use(cors({
+  origin: true, // Allow all origins (web, mobile, localhost, vercel, etc.)
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'token', 'senderId', 'receiverId'],
+}));
+app.options('*', cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
