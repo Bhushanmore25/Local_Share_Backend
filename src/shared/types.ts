@@ -27,6 +27,8 @@ export interface Device {
   transferPort: number;
   availability: DeviceAvailability;
   ip?: string;
+  sameNetwork?: boolean;
+  networkId?: string;
 }
 
 // ─── Shareable Items (TASK-202) ───────────────────────────────────────────────
@@ -55,6 +57,7 @@ export interface TransferRequest {
   version: number;
   transferId: string;
   senderId: string;
+  senderName?: string;
   receiverId: string;
   item: ShareableItem;
   timestamp: number;
@@ -81,6 +84,7 @@ export interface Transfer {
 // ─── Control Plane Messages (TASK-004) ────────────────────────────────────────
 export type ControlMessageType =
   | 'DEVICE_ANNOUNCE'
+  | 'PEER_LIST'
   | 'TRANSFER_REQUEST'
   | 'TRANSFER_ACCEPT'
   | 'TRANSFER_REJECT'
@@ -88,12 +92,16 @@ export type ControlMessageType =
   | 'TRANSFER_PROGRESS'
   | 'TRANSFER_COMPLETE'
   | 'TRANSFER_FAILED'
+  | 'RTC_OFFER'
+  | 'RTC_ANSWER'
+  | 'RTC_ICE_CANDIDATE'
   | 'PING'
   | 'PONG';
 
 export interface ControlMessage {
   version: number;
   type: ControlMessageType;
+  targetDeviceId?: string;
   payload: unknown;
 }
 

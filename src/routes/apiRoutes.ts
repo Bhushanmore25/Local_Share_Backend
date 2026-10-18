@@ -32,18 +32,20 @@ apiRouter.patch('/device/name', (req: Request, res: Response) => {
 /** GET /api/devices — List discovered nearby devices */
 apiRouter.get('/devices', (req: Request, res: Response) => {
   const callerId = (req.query.deviceId as string) || '';
+  const callerIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() || req.socket.remoteAddress || '127.0.0.1';
 
-  // 1. UDP-discovered peers
+  // 1. UDP-discovered peers (always on the same local subnet)
   const udpDevices = discoveryManager.getDevices()
     .filter((d) => !callerId || d.device.deviceId !== callerId)
     .map((d) => ({
       ...d.device,
       ip: d.ip,
       serverPort: d.serverPort,
+      sameNetwork: true,
     }));
 
-  // 2. Connected WebSocket clients (other tabs, mobile web browsers on LAN)
-  const wsDevices = controlManager.getConnectedDevices(callerId);
+  // 2. Connected WebSocket clients (tagged with sameNetwork relative to caller's IP)
+  const wsDevices = controlManager.getConnectedDevices(callerId, callerIp);
 
   // Merge map by deviceId
   const deviceMap = new Map<string, Device>();
